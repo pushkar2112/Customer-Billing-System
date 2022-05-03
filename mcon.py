@@ -1,4 +1,4 @@
-import mysql.connector as mysql 
+import mysql.connector as mysql
 
 #-------------------------ESTABLISHING CONNECTION--------------------------
 mcon=mysql.connect(host='localhost', user='root', passwd='pushkar1', database='cbs')
