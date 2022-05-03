@@ -1,8 +1,5 @@
 #-------------------------IMPORTING MODULES-------------------------------
-import mysql.connector as mysql         #from mysql import connector as msql
-
 from mcon import mcon,curs
-
 import time
 import inventory
 #=========================FUNCTIONS=======================================
