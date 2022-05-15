@@ -1,0 +1,13 @@
+
+--------------Bill--------------
+
+Bill ID - 000012
+Customer ID - 00001
+Date of purchase - 2022-05-16
+
+Item 	Qty 	Price
+1001 	8 	760
+1002 	5 	50
+
+Total 		810
+-------------Thank You!!-----------

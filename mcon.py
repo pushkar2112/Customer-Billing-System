@@ -5,4 +5,4 @@ mcon=mysql.connect(host='localhost', user='root', passwd='pushkar1', database='c
 if mcon.is_connected():
     print("Successfully connected")
 
-curs=mcon.cursor()
+curs=mcon.cursor(buffered = True)

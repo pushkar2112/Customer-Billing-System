@@ -1,42 +1,12 @@
 #-------------------------IMPORTING MODULES-------------------------------
+from billing import generate
+from customer import customer
 from mcon import mcon,curs
 import time
-import inventory
+import inventory, mysql.connector
 #=========================FUNCTIONS=======================================
 
-def showdata(tname):
-    query="select * from {}"
-    curs.execute(query.format(tname))
-
-    data=curs.fetchall()
-    for i in data:
-        print(i)
-
-def spdata(st):
-    query='select {} from {};'.format(st,tn)
-    curs.execute(query) 
-    data=curs.fetchall()
-    for i in data:
-        print(i)
-
-def search(co):
-    query="select * from sample"
-    curs.execute(query)
-    data=curs.fetchall()
-    for i in data:
-        if i[0]==co:
-            print('RECORD FOUND!!!!!')
-            print(i)
-            return 1
-            break
-    else:
-        print('ENTRY NOT FOUND!!!')
-
-def delete(co,tn):
-    query="delete from {} where item_id='{}'".format(tn,co)
-    curs.execute(query)
-    print('DELETION SUCCESFUL')
-    mcon.commit()
+    
     
 def update(co,v1,v2,tn):
     if tn=='sample':
@@ -56,181 +26,170 @@ def update(co,v1,v2,tn):
 # if __name__ == "__main__":
 #     connect()
 
-ch=None
+admin_ch=None
 while True:
-    print('''---------------------------------------------------
-                      MAIN MENU
+    print('''
+------------------ADMIN MENU--------------
+
+1) Customer Management
+2) Inventory Management
+3) Billing
+''')
+
+    admin_ch=int(input('ENTER YOUR CHOICE: '))
+    if admin_ch == 1:
+        ch = None
+        while True:
+            print('''
+----------------------Customer Management-----------------
+
+1) Add Customer
+2) Update Customer Record
+3) Search Customer
+4) Delete Customer Record
+''')
+            cust = customer()
+            ch=int(input('ENTER YOUR CHOICE: '))
+            
+            if ch == 1:
+                n = input("Enter Name: ")
+                c = int(input("Enter Contact Number: "))
+                e = input("Enter E-mail: ")
+
+                cust.add(n,c,e)
+
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+
+            elif ch == 2:
+                cname = input("Enter Atribute Name: ")
+                cid = input("Enter Customer ID: ")
+                new = input("Enter New Value: ")
+
+                cust.update(cname,cid,new)
+
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+
+            elif ch == 3:
+                cid = input("Enter Customer ID: ")
+                cust.search(cid)
+
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+
+            elif ch == 4:
+                cid = input("Enter Customer ID: ")
+                print("ARE YOU SURE YOU WANT TO DELETE RECORD ? [Y/N]")
+                choice = input().lower()
+                if choice == "y":
+                    cust.delete()
+
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+
+            #----------------------------------INVALID CHOICE-----------------------------
+            else:
+                print('SELECT A VALID OPTION!!!')
+
+            
+
+    elif admin_ch == 2:
+        ch = None
+        while True:
+            print('''---------------------------------------------------
+                    MAIN MENU
 ---------------------------------------------------
-1)SHOW TABLES
-2)SHOW ALL RECORDS
-3)SHOW ALL RECORDS(SPECIFIC COLUMNS)
-===>(TO USE THE FOLLOWING FUNCTIONS PLEASE SELECT TABLE IN OPTION 2 FIRST)
-4)SEARCH RECORD
-5)ADD ENTRY
-6)DELETE ENTRY
-7)UPDATE ENTRY
+1)SHOW ALL RECORDS
+2)SHOW ALL RECORDS(SPECIFIC COLUMNS)
+3)SEARCH RECORD
+4)ADD ENTRY
+5)DELETE ENTRY
+6)UPDATE ENTRY
 ---------------------------------------------------''')
-    ch=int(input('ENTER YOUR CHOICE: '))
+            ch=int(input('ENTER YOUR CHOICE: '))
 
-    if ch==1:
-        inventory.showtable()
-        inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
-        if inc in ['n','N']:
-            break
+        #----------------------------------SHOW ALL RECORDS-------------------------
 
-#----------------------------------SHOW ALL RECORDS-------------------------
-
-    if ch==2:
-        global tn
-        ch=0
-        while True:
-            global tn
-            tn=input('ENTER TABLE NAME: ')
-            tn=tn.lower()
-            t=inventory.tables()
-            for i in t:
-                if tn in i:
-                    print('TABLE FOUND!!')
-                    ch+=1
-                    break
+            if ch==1:        
+                inventory.showdata()
                 
-            else:
-                print('Enter a valid table name!!!!!')
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+
+        #-----------------------------SHOW SPECIFIC COLUMNS--------------------------
+
+            if ch==2:                                   
+                print('COLUMN NAMES: ')
+                curs.execute("select * from inventory")
+                cnm=curs.column_names
+                for i in cnm:
+                    print(i)
+                cno=int(input('HOW MANY COLUMNS DO YOU WANT TO SELECT: '))
+                sample=[]
+                for i in range(cno):
+                    nm=input('ENTER COLUMN NAME: ')
+                    sample.append(nm)
                 
-            if ch==1:
-                break
-   
-        showdata(tn)
-        inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
-        if inc in ['n','N']:
-            break
-
-#-----------------------------SHOW SPECIFIC COLUMNS--------------------------
-
-    if ch==3:                                   
-        print('COLUMN NAMES: ')
-        cnm=curs.column_names
-        for i in cnm:
-            print(i)
-        cno=int(input('HOW MANY COLUMNS DO YOU WANT TO SELECT: '))
-        sample=[]
-        for i in range(cno):
-            nm=input('ENTER COLUMN NAME: ')
-            sample.append(nm)
-        
-        st=''
-        for i in sample:
-            st+=i
-            st+=','
-        spdata(st[:-1])
-        
-        inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
-        if inc in ['n','N']:
-            break
-
-#-----------------------------SEARCH RECORD----------------------------------
-
-    if ch==4:
-        co=input("Enter the item id which you want to search: ")
-        search(co)
-
-        inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
-        if inc in ['n','N']:
-            break
-#----------------------------NEW ENTRY----------------------------------------
-    if ch==5:
-        if tn=='sample':
-            while True:
-                i=input("Enter ITEM ID: ")
-                n=input("Enter ITEM NAME: ")
-                q=int(input("Enter QUANTITY: "))
-                p=int(input("Enter PRICE: "))
-                s=input("Enter SELLER NAME: ")
-                ps=input("Enter DATE OF PURCHASE:(YYYY,MM,DD) ")
-                query="Insert into sample values('{}','{}',{},{},'{}','{}')".format(i,n,q,p,s,ps)
-                curs.execute(query)
-                mcon.commit()
-
-                ch=input('DO YOU WANT TO ENTER MORE VALUES: ')
-                if ch in ['n','N']:
-                    break
-        elif tn=='emp':
-            while True:
-                i=int(input("Enter EMP ID: "))
-                n=input("Enter EMP NAME: ")
-                q=int(input("Enter SALARY: "))
-                query="Insert into emp values({},'{}',{})".format(i,n,q)
-                curs.execute(query)
-                mcon.commit()
-
-                ch=input('DO YOU WANT TO ENTER MORE VALUES: ')
-                if ch in ['n','N']:
-                    break
-        else:
-            print('PLEASE SELECT A VALID TABLE ON OPTION 2!!!')
-            break
-        
-        inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
-        if inc in ['n','N']:
-            break
-
-#------------------------------------DELETE ENTRY----------------------------------------
-    if ch==6:
-        while True:
-            co=input('ENTER ID WHOSE ENTRY IS TO BE DELETED: ')
-            if search(co)==1:
-                ch=input('ARE YOU SURE YOU WANT TO DELETE THIS RECORD? [Y/N]  ')
-                if ch in ['n','N']:
-                    print('-------RECORD NOT DELETED-------')
-                    break
-                else:
+                st=''
+                for i in sample:
+                    st+=i
+                    st+=','
+                inventory.spdata(st[:-1])
                 
-                    delete(co,tn)
-                    c=input('DO YOU WANT TO DELETE MORE? [Y/N]  ')
-                    if c in ['n','N']:
-                        break
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+
+        #-----------------------------SEARCH RECORD----------------------------------
+
+            if ch==3:
+                co=input("Enter the item id which you want to search: ")
+                inventory.search(co)
+
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+        #----------------------------NEW ENTRY----------------------------------------
+            if ch==4:
+                inventory.add()
+
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+
+        #------------------------------------DELETE ENTRY----------------------------------------
+            if ch==5:
+                inventory.del_item()
+
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+
+        #----------------------------UPDATE ENTRY---------------------------------------
+
+            if ch==6:
+                try:
+                    inventory.update_item()
+                except mysql.connector.errors.ProgrammingError:
+                    print("\nAn error occured while processing that request! Please try again!")
+
+                inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
+                if inc in ['n','N']:
+                    break
+        #----------------------------------INVALID CHOICE-----------------------------
             else:
-                c=input('DO YOU WANT TO TRY AGAIN? [Y/N]  ')
-                if c in['n','N']:
-                    break
+                print('SELECT A VALID OPTION!!!')
 
-        inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
-        if inc in ['n','N']:
-            break
-
-#----------------------------UPDATE ENTRY---------------------------------------
-
-    if ch==7:
-        while True:
-            co=input('ENTER ID WHOSE ENTRY IS TO BE UPDATED: ')
-            if search(co)==1:
-                ch=input('ARE YOU SURE YOU WANT TO UPDATE THIS RECORD? [Y/N]  ')
-                if ch in ['n','N']:
-                    print('-------RECORD NOT UPDATED-------')
-                    break
-                else:
-                    
-                    v1=input('ENTER COLUMN NAME: ')
-                    cnm=curs.column_names
-                    if v1 in cnm:
-                        v2=input('ENTER NEW VALUE: ')
-                        update(co,v1,v2,tn)
-                        c=input('DO YOU WANT TO UPDATE MORE? [Y/N]  ')
-                        if c in ['n','N']:
-                            break
-                        
-                    else:
-                        print('COLUMN NOT FOUND')
-                        break
-                    
-            else:
-                c=input('DO YOU WANT TO TRY AGAIN? [Y/N]  ')
-                if c in['n','N']:
-                    break
-
-        inc=input('DO YOU WANT TO CONTINUE? [Y/N] ')
-        if inc in ['n','N']:
-            break
+    elif admin_ch == 3:
+        #------------Billing------------
+        cid = input("Enter Customer ID: ")
+        generate(cid)
 
 #-----------------------------INVALID CHOICE-----------------------------------------
         
