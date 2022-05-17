@@ -4,27 +4,9 @@ from customer import customer
 from mcon import mcon,curs
 import time
 import inventory, mysql.connector
-#=========================FUNCTIONS=======================================
-
-    
-    
-def update(co,v1,v2,tn):
-    if tn=='sample':
-        query='update sample set {}={} where item_id={}'.format(v1,v2,co)
-        curs.execute(query)
-        print('UPDATION SUCCESFUL')
-        mcon.commit()
-    elif tn=='emp':
-        query='update emp set {}={} where empid={}'.format(v1,v2,co)
-        curs.execute(query)
-        print('UPDATION SUCCESFUL')
-        mcon.commit()
-    
     
 
 #-------------------------MAIN MENU---------------------------------------
-# if __name__ == "__main__":
-#     connect()
 
 admin_ch=None
 while True:
